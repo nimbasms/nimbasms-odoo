@@ -4,10 +4,8 @@ Send SMS directly from Odoo using [Nimba SMS](https://nimbasms.com), a reliable 
 
 ## Features
 
-- **Batch Sending** - Send to multiple recipients in one request
+- **Batch Sending** - Send to multiple recipients in one request With Sms Marketing
 - **Delivery Tracking** - Real-time delivery status updates via webhooks
-- **Phone Validation** - Automatic formatting for African country codes
-- **Multi-tenant** - Separate configuration per database
 - **Easy Configuration** - Simple setup via Odoo Settings interface
 - **Error Handling** - Clear error messages and troubleshooting
 

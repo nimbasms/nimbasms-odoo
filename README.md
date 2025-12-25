@@ -24,7 +24,7 @@ Place the module in your Odoo addons directory. There are several ways to do thi
 **Option A: Copy to addons directory**
 ```bash
 # Copy module to Odoo addons path
-cp -r nimba_sms /path/to/odoo/addons/
+cp -r nimbasms /path/to/odoo/addons/
 ```
 
 **Option B: Use extra-addons directory**
@@ -33,9 +33,9 @@ cp -r nimba_sms /path/to/odoo/addons/
 mkdir -p /path/to/extra-addons
 
 # Copy or link module
-cp -r nimba_sms /path/to/extra-addons/
+cp -r nimbasms /path/to/extra-addons/
 # OR symlink it
-ln -s /path/to/nimba_sms /path/to/extra-addons/nimba_sms
+ln -s /path/to/nimbasms /path/to/extra-addons/nimbasms
 ```
 
 Then add the path to your Odoo configuration file (`odoo.conf`):

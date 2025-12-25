@@ -52,6 +52,9 @@
         'views/nimba_sms_account_wizard_view.xml',
         'views/res_config_settings_views.xml',
     ],
+    'images': [
+        'images/main_screenshot.png',
+    ],
     'installable': True,
     'application': False,
     'auto_install': False,

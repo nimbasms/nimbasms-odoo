@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, _
-from odoo.addons.nimba_sms.tools.sms_api import SmsApiNimba
+from odoo.addons.nimbasms.tools.sms_api import SmsApiNimba
 
 
 class ResCompany(models.Model):

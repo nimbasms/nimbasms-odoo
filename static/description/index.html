@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Nimba SMS - Odoo Integration</title>
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #875A7B;
+            border-bottom: 3px solid #875A7B;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #875A7B;
+            margin-top: 30px;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #00A09D;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            color: #0c5460;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #856404;
+            color: #856404;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #875A7B;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+        .section {
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nimba SMS Provider for Odoo</h1>
+        
+        <p class="lead">
+            Send SMS directly from Odoo using <strong>Nimba SMS</strong>, a reliable SMS provider 
+            with coverage across Guinea and other African countries. This module integrates seamlessly 
+            with Odoo's SMS infrastructure using the official Nimba SMS Python SDK.
+        </p>
+
+        <div class="alert alert-info">
+            <strong>Note:</strong> This module requires an external service (Nimba SMS) to function. 
+            You will need to create an account at <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a> 
+            and configure your API credentials. For API documentation, visit <a href="https://developers.nimbasms.com" target="_blank">developers.nimbasms.com</a>.
+        </div>
+
+        <div class="section">
+            <h2>Key Features</h2>
+            <ul class="feature-list">
+                <li><strong>Official SDK Integration</strong> - Uses the official Nimba SMS Python SDK for reliable communication</li>
+                <li><strong>Batch Sending</strong> - Send SMS to multiple recipients in a single request, perfect for marketing campaigns</li>
+                <li><strong>Delivery Tracking</strong> - Real-time delivery status updates via webhooks</li>
+                <li><strong>Multi-tenant Support</strong> - Per-database configuration for multi-company setups</li>
+                <li><strong>Phone Number Validation</strong> - Automatic validation and formatting for African countries (default: Guinea)</li>
+                <li><strong>Account Management</strong> - Easy configuration wizard with connection testing</li>
+                <li><strong>Error Handling</strong> - Clear error messages and comprehensive troubleshooting</li>
+                <li><strong>Balance Checking</strong> - Verify your account balance before sending</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Installation</h2>
+            <h3>1. Install Python Dependencies</h3>
+            <div class="code-block">
+pip install nimbasms phonenumbers
+            </div>
+
+            <h3>2. Install the Module</h3>
+            <ol>
+                <li>Place the module in your Odoo addons directory</li>
+                <li>Restart Odoo server</li>
+                <li>Go to <strong>Apps</strong> menu</li>
+                <li>Click <strong>Update Apps List</strong></li>
+                <li>Search for <strong>"Nimba SMS"</strong></li>
+                <li>Click <strong>Install</strong></li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Configuration</h2>
+            <h3>Step 1: Get Your Nimba SMS Credentials</h3>
+            <ol>
+                <li>Sign up at <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a></li>
+                <li>Log in to your Nimba SMS dashboard</li>
+                <li>Navigate to <strong>Dashboard → Développeurs</strong> or visit <a href="https://developers.nimbasms.com" target="_blank">developers.nimbasms.com</a> for API documentation</li>
+                <li>Copy your <strong>Service ID</strong> and <strong>Secret Token</strong></li>
+                <li>Register and get your <strong>Sender Name</strong> approved (usually takes 24-48 hours)</li>
+                <li>Add credits to your account</li>
+            </ol>
+
+            <h3>Step 2: Configure in Odoo</h3>
+            <ol>
+                <li>Go to <strong>Settings → General Settings</strong></li>
+                <li>Scroll to the <strong>SMS</strong> section</li>
+                <li>Select <strong>"Nimba SMS"</strong> as your SMS Provider</li>
+                <li>Click the <strong>"Manage Account"</strong> button</li>
+                <li>Enter your <strong>Service ID</strong>, <strong>Secret Token</strong>, and <strong>Sender Name</strong></li>
+                <li>Click <strong>"Test Connection"</strong> to verify your credentials</li>
+                <li>Click <strong>"Save"</strong> to apply the configuration</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Usage</h2>
+            <h3>Sending SMS</h3>
+            <p>Once configured, you can send SMS from anywhere in Odoo:</p>
+            <ul>
+                <li><strong>From Contacts:</strong> Open any contact record and click the SMS icon</li>
+                <li><strong>From Marketing Campaigns:</strong> Create SMS marketing campaigns and send to multiple recipients</li>
+                <li><strong>From Other Modules:</strong> Any module that supports SMS functionality (Sales, CRM, Events, etc.)</li>
+            </ul>
+
+            <h3>Phone Number Format</h3>
+            <p>Phone numbers should be in international E.164 format:</p>
+            <ul>
+                <li>✅ <strong>Correct:</strong> <code>+224620000000</code> (Guinea)</li>
+                <li>✅ <strong>Correct:</strong> <code>624000000</code> (Guinea, auto-formatted)</li>
+            </ul>
+            <p>The module automatically formats numbers when possible.</p>
+        </div>
+
+        <div class="section">
+            <h2>Webhook Configuration (Optional)</h2>
+            <p>Webhooks enable real-time delivery status updates from Nimba SMS to Odoo.</p>
+            
+            <h3>Setup</h3>
+            <ol>
+                <li>Get your webhook URL: <code>https://your-odoo-domain.com/sms/webhook/nimba</code></li>
+                <li>Log in to <a href="https://www.nimbasms.com" target="_blank">Nimba SMS Portal</a></li>
+                <li>Navigate to <strong>API → Webhooks</strong> or check <a href="https://developers.nimbasms.com" target="_blank">developers.nimbasms.com</a> for documentation</li>
+                <li>Enter your webhook URL and save</li>
+            </ol>
+            
+            <p><strong>Note:</strong> Webhooks work automatically across all databases in multi-tenant setups.</p>
+        </div>
+
+        <div class="section">
+            <h2>Requirements</h2>
+            <ul>
+                <li>Odoo 19.0 or higher</li>
+                <li>Python packages: <code>nimbasms</code>, <code>phonenumbers</code></li>
+                <li>Nimba SMS account (sign up at <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a>)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Troubleshooting</h2>
+            <h3>Common Issues</h3>
+            <ul>
+                <li><strong>SDK not installed:</strong> Run <code>pip install nimbasms phonenumbers</code> and restart Odoo</li>
+                <li><strong>Invalid credentials:</strong> Double-check Service ID and Secret Token in Dashboard → Développeurs</li>
+                <li><strong>Invalid Sender Name:</strong> Ensure Sender Name is approved and spelling matches exactly</li>
+                <li><strong>Insufficient balance:</strong> Top up your Nimba SMS account</li>
+                <li><strong>Invalid phone number:</strong> Use international format: <code>+224620000000</code></li>
+            </ul>
+
+            <h3>Check Logs</h3>
+            <p>Go to <strong>Settings → Technical → Logging</strong> and filter by "nimba" or "sms" to see error messages.</p>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>Important:</strong>
+            <ul>
+                <li>Your Sender Name must be approved by Nimba SMS before use</li>
+                <li>Test your connection before sending SMS to customers</li>
+                <li>Keep your API credentials secure</li>
+                <li>Ensure you have sufficient account balance</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Support</h2>
+            <p>For issues, questions, or support requests:</p>
+            <ul>
+                <li>Email: <a href="mailto:support@nimbasms.com">support@nimbasms.com</a></li>
+                <li>Website: <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a></li>
+                <li>API Documentation: <a href="https://developers.nimbasms.com" target="_blank">developers.nimbasms.com</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+

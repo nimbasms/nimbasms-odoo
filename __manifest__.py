@@ -9,8 +9,9 @@
         Nimba SMS Provider Integration (Official SDK)
         ==============================================
 
-        This module integrates Nimba SMS (https://nimbasms.com/)
+        This module integrates Nimba SMS (https://www.nimbasms.com/)
         into Odoo's SMS infrastructure using the official Python SDK.
+        API documentation: https://developers.nimbasms.com
 
         Features:
         ---------
@@ -36,6 +37,7 @@
     'author': 'Nimba SMS Integration',
     'website': 'https://github.com/nimbasms/odoo-integration',
     'license': 'LGPL-3',
+    'support': 'support@nimbasms.com',  # Optional: support email
     'depends': [
         'sms',
     ],

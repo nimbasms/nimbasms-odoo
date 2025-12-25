@@ -38,9 +38,9 @@
                                 <h4><i class="fa fa-info-circle"/> How to Configure Nimba SMS</h4>
                                 <p><strong>Getting Started with Nimba SMS:</strong></p>
                                 <ol>
-                                    <li>Sign up at <a href="https://nimbasms.com" target="_blank">nimbasms.com</a></li>
+                                    <li>Sign up at <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a></li>
                                     <li>Log in to your Nimba SMS dashboard</li>
-                                    <li>Navigate to Dashboard → Développeurs</li>
+                                    <li>Navigate to Dashboard → Développeurs or visit <a href="https://developers.nimbasms.com" target="_blank">developers.nimbasms.com</a> for API documentation</li>
                                     <li>Copy your <strong>Service ID</strong> and <strong>Secret Token</strong></li>
                                     <li>Register and get your <strong>Sender Name</strong> approved</li>
                                     <li>Enter your credentials in the fields above</li>
@@ -67,7 +67,7 @@
                                     <li><strong>Delivery Reports:</strong> Track message delivery status</li>
                                 </ul>
 
-                                <p class="mt16">For more information, visit <a href="https://nimbasms.com" target="_blank">nimbasms.com</a></p>
+                                <p class="mt16">For more information, visit <a href="https://www.nimbasms.com" target="_blank">www.nimbasms.com</a> or check the <a href="https://developers.nimbasms.com" target="_blank">API documentation</a>.</p>
                             </div>
                         </page>
                     </notebook>

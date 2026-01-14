@@ -7,13 +7,11 @@ from odoo.addons.nimbasms.tools.sms_api import SmsApiNimba
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    # Define SMS provider selection including Nimba SMS
-    # Includes all standard options (IAP, Twilio, Nimba)
+    # SMS provider selection
     sms_provider = fields.Selection(
         string='SMS Provider',
         selection=[
             ('iap', 'Send via Odoo'),
-            ('twilio', 'Send via Twilio'),
             ('nimba', 'Nimba SMS'),
         ],
         default='iap',

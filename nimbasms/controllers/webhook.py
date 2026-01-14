@@ -12,16 +12,15 @@ _logger = logging.getLogger(__name__)
 
 
 # Nimba SMS status mapping to Odoo SMS states
-# Similar to Twilio's TWILIO_TO_SMS_STATE mapping
 NIMBA_TO_SMS_STATE = {
     'received': 'sent',   # Message successfully delivered to recipient
     'failed': 'error',    # Message delivery failed
 }
 
 
-class AfricanSmsWebhook(http.Controller):
+class NimbaSmsWebhook(http.Controller):
     """
-    Webhook controller for receiving delivery status callbacks from African SMS providers.
+    Webhook controller for receiving delivery status callbacks from Nimba SMS provider.
 
     This controller handles incoming HTTP requests from the SMS provider
     to update the delivery status of sent messages.
@@ -321,7 +320,7 @@ class AfricanSmsWebhook(http.Controller):
         return request.make_response(
             json.dumps({
                 'status': 'active',
-                'message': 'African SMS Provider webhook is active',
+                'message': 'Nimba SMS webhook is active',
                 'endpoint': '/sms/webhook/nimba'
             }),
             headers={'Content-Type': 'application/json'},

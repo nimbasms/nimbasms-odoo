@@ -20,16 +20,15 @@ _logger = logging.getLogger(__name__)
 
 class SmsApiNimba(SmsApiBase):
     """
-    SMS API implementation for Nimba SMS providers.
+    SMS API implementation for Nimba SMS.
 
-    This class handles sending SMS through African providers like
-    AfricasTalking, Hubtel, etc.
+    This class handles sending SMS through Nimba SMS.
     """
 
     PROVIDER_TO_SMS_FAILURE_TYPE = SmsApiBase.PROVIDER_TO_SMS_FAILURE_TYPE | {
-        'african_auth_error': 'sms_credit',
-        'african_invalid_sender': 'sms_number_format',
-        'african_insufficient_balance': 'sms_credit',
+        'nimba_auth_error': 'sms_credit',
+        'nimba_invalid_sender': 'sms_number_format',
+        'nimba_insufficient_balance': 'sms_credit',
     }
 
     def _format_phone_number(self, number, default_country='GN'):
@@ -192,9 +191,9 @@ class SmsApiNimba(SmsApiBase):
         """Return error messages for different failure types."""
         error_dict = super()._get_sms_api_error_messages()
         error_dict.update({
-            'african_auth_error': _("Authentication error - check API credentials"),
-            'african_invalid_sender': _("Invalid sender name - verify it's approved"),
-            'african_insufficient_balance': _("Insufficient balance in your account"),
+            'nimba_auth_error': _("Authentication error - check API credentials"),
+            'nimba_invalid_sender': _("Invalid sender name - verify it's approved"),
+            'nimba_insufficient_balance': _("Insufficient balance in your account"),
             'wrong_number_format': _("Invalid phone number format"),
             'server_error': _("Server error - please try again"),
             'unknown': _("Unknown error - contact support"),

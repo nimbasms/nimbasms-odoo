@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Nimba SMS',
-    'version': '19.0.2.1.0',
+    'version': '19.0.2.3.0',
     'category': 'Discuss/SMS',
     'summary': 'Integration with Nimba SMS using official Python SDK',
     'sequence': 100,  # Load after other SMS modules

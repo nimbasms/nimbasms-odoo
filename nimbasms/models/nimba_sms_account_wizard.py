@@ -10,7 +10,7 @@ except ImportError:
     NimbaSMSException = Exception
 
 
-class SmsAfricanAccountWizard(models.TransientModel):
+class SmsNimbaAccountWizard(models.TransientModel):
     """
     Wizard for configuring Nimba SMS Provider account.
     Opens as a modal when user clicks "Manage Account" in Settings.

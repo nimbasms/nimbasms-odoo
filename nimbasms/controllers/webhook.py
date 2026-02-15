@@ -26,6 +26,57 @@ class NimbaSmsWebhook(http.Controller):
     to update the delivery status of sent messages.
     """
 
+    @staticmethod
+    def _normalize_phone(number):
+        """Strip '+' prefix and spaces from a phone number for comparison."""
+        if not number:
+            return ''
+        return number.lstrip('+').replace(' ', '').replace('-', '')
+
+    @staticmethod
+    def _find_sms_by_nimba_callback(sms_model, messageid, contact):
+        """
+        Find the specific sms.sms record matching a Nimba callback.
+
+        NimbaSMS returns a single messageid for an entire batch of recipients.
+        We use the contact phone number to identify the correct record.
+
+        :param sms_model: sms.sms model (sudo'd)
+        :param messageid: Nimba message ID
+        :param contact: recipient phone number from the webhook
+        :return: single sms.sms recordset (may be empty)
+        """
+        all_sms = sms_model.search([('sms_nimba_sid', '=', messageid)])
+        if not all_sms:
+            return sms_model  # empty recordset
+
+        contact_normalized = NimbaSmsWebhook._normalize_phone(contact)
+        if contact_normalized:
+            target = all_sms.filtered(
+                lambda s: NimbaSmsWebhook._normalize_phone(s.number) == contact_normalized
+            )[:1]
+            if target:
+                return target
+
+        # Fallback: return the first undelivered SMS, or just the first one
+        pending = all_sms.filtered(lambda s: s.state not in ('sent', 'error'))[:1]
+        return pending or all_sms[:1]
+
+    @staticmethod
+    def _update_sms_from_nimba_status(sms_record, status, error_message=None):
+        """
+        Update an sms.sms record based on Nimba webhook status.
+
+        :param sms_record: sms.sms recordset (single record)
+        :param status: Nimba status string ('received' or 'failed')
+        :param error_message: optional error message for failed status
+        """
+        odoo_state = NIMBA_TO_SMS_STATE.get(status, 'error')
+        update_vals = {'state': odoo_state}
+        if odoo_state == 'error':
+            update_vals['failure_type'] = 'sms_delivery'
+        sms_record.write(update_vals)
+
     @http.route(['/sms/webhook/nimba', '/sms/webhook/nimba/<string:db_name>'], type='http', auth='public', methods=['POST', 'GET'], csrf=False)
     def nimba_sms_delivery_callback(self, db_name=None, **kwargs):
         """
@@ -122,62 +173,49 @@ class NimbaSmsWebhook(http.Controller):
                 status=400
             )
 
+        contact = data.get('contact', '')
+        status = data.get('status', '').lower()
+
         # Get list of all databases
         db_list = odoo.service.db.list_dbs(True)
 
         found = False
         for db_name in db_list:
             try:
-                # Create new registry for each database
                 db_registry = Registry(db_name)
                 with db_registry.cursor() as cr:
                     env = odoo.api.Environment(cr, odoo.SUPERUSER_ID, {})
 
-                    # Search for SMS tracker with this messageid
+                    # Find the specific SMS by messageid + contact number
+                    SmsSms = env['sms.sms'].sudo()
+                    sms = self._find_sms_by_nimba_callback(SmsSms, messageid, contact)
+
+                    if not sms:
+                        continue
+
+                    # Try to update via tracker if available (linked via uuid)
                     SmsTracker = env['sms.tracker'].sudo()
                     tracker = SmsTracker.search([
-                        ('sms_nimba_sid', '=', messageid),
-                    ], limit=1)
+                        ('sms_uuid', '=', sms.uuid),
+                    ], limit=1) if sms.uuid else SmsTracker
 
-                    # If tracker found, update via tracker
                     if tracker:
-                        status = data.get('status', '').lower()
-
                         if status == 'failed':
                             error_message = data.get('error', 'Delivery failed')
                             tracker._action_update_from_nimba_error(error_message)
                         elif status in NIMBA_TO_SMS_STATE:
                             odoo_state = NIMBA_TO_SMS_STATE[status]
                             tracker._action_update_from_sms_state(odoo_state)
-
                         cr.commit()
-
-                        contact = data.get('contact')
-                        _logger.info(f"Updated SMS tracker {tracker.id} in database '{db_name}' (messageid: {messageid}) to {NIMBA_TO_SMS_STATE.get(status, 'error')} for contact {contact}")
-                        found = True
-                        break
-
-                    # If no tracker, search directly in sms.sms (for SMS without tracking)
-                    SmsSms = env['sms.sms'].sudo()
-                    sms = SmsSms.search([
-                        ('sms_nimba_sid', '=', messageid),
-                    ], limit=1)
-
-                    if sms:
-                        status = data.get('status', '').lower()
-                        odoo_state = NIMBA_TO_SMS_STATE.get(status, 'error')
-
-                        update_vals = {'state': odoo_state}
-                        if odoo_state == 'error':
-                            update_vals['failure_type'] = 'sms_delivery'
-
-                        sms.write(update_vals)
+                        _logger.info(f"Updated SMS tracker {tracker.id} for sms.sms {sms.id} in '{db_name}' (messageid: {messageid}) to {NIMBA_TO_SMS_STATE.get(status, 'error')} for contact {contact}")
+                    else:
+                        # No tracker, update sms.sms directly
+                        self._update_sms_from_nimba_status(sms, status)
                         cr.commit()
+                        _logger.info(f"Updated SMS {sms.id} in '{db_name}' (messageid: {messageid}) to {NIMBA_TO_SMS_STATE.get(status, 'error')} for contact {contact}")
 
-                        contact = data.get('contact')
-                        _logger.info(f"Updated SMS {sms.id} in database '{db_name}' (messageid: {messageid}) to {odoo_state} for contact {contact}")
-                        found = True
-                        break
+                    found = True
+                    break
 
             except Exception as e:
                 _logger.warning(f"Error processing webhook in database '{db_name}': {str(e)}")
@@ -251,39 +289,23 @@ class NimbaSmsWebhook(http.Controller):
 
         :param data: webhook payload data
         """
-        # Extract relevant fields from Nimba webhook
         messageid = data.get('messageid')
-        contact = data.get('contact')
+        contact = data.get('contact', '')
         status = data.get('status', '').lower()
 
         if not messageid:
             _logger.warning(f"Nimba webhook missing messageid: {data}")
             return
 
-        # Map Nimba status to Odoo status
-        odoo_state = self._map_status_to_odoo(status)
+        # Find the specific SMS by messageid + contact number
+        SmsSms = request.env['sms.sms'].sudo()
+        sms = self._find_sms_by_nimba_callback(SmsSms, messageid, contact)
 
-        # Find the SMS message in Odoo by Nimba messageid
-        SmsMessage = request.env['sms.sms'].sudo()
-
-        messages = SmsMessage.search([
-            ('sms_nimba_sid', '=', messageid),
-        ], limit=1)
-
-        if messages:
-            # Update message state
-            update_vals = {'state': odoo_state}
-
-            # Add error info if failed
-            if odoo_state == 'error':
-                update_vals['failure_type'] = 'sms_delivery'
-
-            messages.write(update_vals)
-
-            _logger.info(f"Updated SMS {messages.id} (messageid: {messageid}) to {odoo_state} for contact {contact}")
-
+        if sms:
+            self._update_sms_from_nimba_status(sms, status)
+            _logger.info(f"Updated SMS {sms.id} (messageid: {messageid}) to {NIMBA_TO_SMS_STATE.get(status, 'error')} for contact {contact}")
         else:
-            _logger.warning(f"Could not find SMS message with sms_nimba_sid={messageid}")
+            _logger.warning(f"Could not find SMS with sms_nimba_sid={messageid} for contact {contact}")
 
     def _map_status_to_odoo(self, provider_status):
         """

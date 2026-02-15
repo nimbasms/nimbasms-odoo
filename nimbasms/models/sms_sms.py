@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import fields, models
 
 
@@ -13,15 +15,12 @@ class SmsSms(models.Model):
         copy=False,
     )
 
+    # ------------------------------------------------------------------
+    # SEND
+    # ------------------------------------------------------------------
+
     def _split_by_api(self):
-        """
-        Override to handle Nimba SMS provider routing.
-
-        This method routes SMS to the appropriate API
-        based on the company's sms_provider setting.
-        """
-        from collections import defaultdict
-
+        """Route SMS to NimbaSMS or IAP based on company sms_provider."""
         sms_by_company = defaultdict(lambda: self.env['sms.sms'])
         todo_via_super = self.browse()
 
@@ -38,6 +37,30 @@ class SmsSms(models.Model):
 
         if todo_via_super:
             yield from super(SmsSms, todo_via_super)._split_by_api()
+
+    def _send(self, unlink_failed=False, unlink_sent=True, raise_exception=False):
+        """Override to ensure NimbaSMS routing from the cron queue.
+
+        In Odoo 19, ``_process_queue()`` calls ``_send()`` directly,
+        bypassing ``send()`` → ``_split_by_api()``.  When no ``sms_api``
+        is present in the context we re-route through ``_split_by_api()``
+        so that the provider selection (and ``_set_company``) is applied.
+        """
+        if self.env.context.get('sms_api'):
+            return super()._send(
+                unlink_failed=unlink_failed,
+                unlink_sent=unlink_sent,
+                raise_exception=raise_exception,
+            )
+
+        # No sms_api in context → route through _split_by_api (same as send())
+        for sms_api, sms_records in self._split_by_api():
+            for batch_ids in sms_records._split_batch():
+                self.browse(batch_ids).with_context(sms_api=sms_api)._send(
+                    unlink_failed=unlink_failed,
+                    unlink_sent=unlink_sent,
+                    raise_exception=raise_exception,
+                )
 
     failure_type = fields.Selection(
         selection_add=[
